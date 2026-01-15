@@ -16,7 +16,7 @@
 			"sinks": [],
 			"transformations": [
 				{
-					"name": "flatten1"
+					"name": "ParseJSON"
 				}
 			],
 			"scriptLines": [
@@ -33,12 +33,37 @@
 				"     httpMethod: 'GET',",
 				"     paginationRules: ['supportRFC5988' -> 'true'],",
 				"     responseFormat: ['type' -> 'json', 'documentForm' -> 'arrayOfDocuments']) ~> Earthquakes",
-				"Earthquakes foldDown(unroll(),",
+				"Earthquakes foldDown(unroll(body.features),",
 				"     mapColumn(",
-				"          body",
+				"          mag = body.features.properties.mag,",
+				"          place = body.features.properties.place,",
+				"          time = body.features.properties.time,",
+				"          updated = body.features.properties.updated,",
+				"          tz = body.features.properties.tz,",
+				"          url = body.features.properties.url,",
+				"          detail = body.features.properties.detail,",
+				"          felt = body.features.properties.felt,",
+				"          cdi = body.features.properties.cdi,",
+				"          mmi = body.features.properties.mmi,",
+				"          alert = body.features.properties.alert,",
+				"          status = body.features.properties.status,",
+				"          tsunami = body.features.properties.tsunami,",
+				"          sig = body.features.properties.sig,",
+				"          net = body.features.properties.net,",
+				"          code = body.features.properties.code,",
+				"          ids = body.features.properties.ids,",
+				"          sources = body.features.properties.sources,",
+				"          types = body.features.properties.types,",
+				"          nst = body.features.properties.nst,",
+				"          dmin = body.features.properties.dmin,",
+				"          rms = body.features.properties.rms,",
+				"          gap = body.features.properties.gap,",
+				"          magType = body.features.properties.magType,",
+				"          type = body.features.geometry.type,",
+				"          title = body.features.properties.title",
 				"     ),",
 				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> flatten1"
+				"     skipDuplicateMapOutputs: false) ~> ParseJSON"
 			]
 		}
 	}
