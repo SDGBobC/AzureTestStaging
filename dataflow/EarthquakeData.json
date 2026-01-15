@@ -20,16 +20,23 @@
 				}
 			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false,",
+				"source(output(",
+				"          body as (bbox as double[], features as (geometry as (coordinates as double[], type as string), id as string, properties as (alert as string, cdi as double, code as string, detail as string, dmin as double, felt as short, gap as short, ids as string, mag as double, magType as string, mmi as double, net as string, nst as short, place as string, rms as double, sig as short, sources as string, status as string, time as long, title as string, tsunami as boolean, type as string, types as string, tz as string, updated as long, url as string), type as string)[], metadata as (api as string, count as short, generated as long, status as short, title as string, url as string), type as string),",
+				"          headers as [string,string]",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: true,",
 				"     format: 'rest',",
 				"     timeout: 30,",
 				"     entity: 'https://earthquake.usgs.gov/fdsnws/event/1/query',",
 				"     queryParameters: ['format' -> 'geojson', 'starttime' -> '2026-01-01', 'endtime' -> '2026-01-02'],",
 				"     httpMethod: 'GET',",
 				"     paginationRules: ['supportRFC5988' -> 'true'],",
-				"     responseFormat: ['type' -> 'json', 'documentForm' -> 'documentPerLine']) ~> Earthquakes",
+				"     responseFormat: ['type' -> 'json', 'documentForm' -> 'arrayOfDocuments']) ~> Earthquakes",
 				"Earthquakes foldDown(unroll(),",
+				"     mapColumn(",
+				"          body",
+				"     ),",
 				"     skipDuplicateMapInputs: false,",
 				"     skipDuplicateMapOutputs: false) ~> flatten1"
 			]
