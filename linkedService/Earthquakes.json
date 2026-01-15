@@ -1,20 +1,6 @@
 {
 	"name": "Earthquakes",
 	"properties": {
-		"parameters": {
-			"format": {
-				"type": "string",
-				"defaultValue": "geojson"
-			},
-			"starttime": {
-				"type": "string",
-				"defaultValue": "2026-01-01"
-			},
-			"endtime": {
-				"type": "string",
-				"defaultValue": "2026-01-02"
-			}
-		},
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
