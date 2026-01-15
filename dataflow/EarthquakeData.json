@@ -42,7 +42,7 @@
 				"     format: 'rest',",
 				"     timeout: 30,",
 				"     entity: 'https://earthquake.usgs.gov/fdsnws/event/1/query',",
-				"     queryParameters: ['format' -> 'geojson', 'starttime' -> '2026-01-02', 'endtime' -> '2026-01-03'],",
+				"     queryParameters: ['format' -> 'geojson', 'starttime' -> ($starttime), 'endtime' -> ($endtime)],",
 				"     httpMethod: 'GET',",
 				"     paginationRules: ['supportRFC5988' -> 'true'],",
 				"     responseFormat: ['type' -> 'json', 'documentForm' -> 'arrayOfDocuments']) ~> Earthquakes",
