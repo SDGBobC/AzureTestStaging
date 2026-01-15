@@ -1,0 +1,9 @@
+{
+	"name": "adf-data-stg",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "b45f1319-eace-4e8c-8823-7ee395cb2a51",
+		"tenantId": "316d3d07-900c-4e3d-99cb-215902dffe90"
+	}
+}
