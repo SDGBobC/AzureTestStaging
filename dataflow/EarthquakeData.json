@@ -9,11 +9,16 @@
 						"referenceName": "Earthquakes",
 						"type": "LinkedServiceReference"
 					},
-					"name": "Earthquakes"
+					"name": "Earthquakes",
+					"description": "Earthquake data from USGS"
 				}
 			],
 			"sinks": [],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "flatten1"
+				}
+			],
 			"scriptLines": [
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
@@ -23,7 +28,10 @@
 				"     queryParameters: ['format' -> 'geojson', 'starttime' -> '2026-01-01', 'endtime' -> '2026-01-02'],",
 				"     httpMethod: 'GET',",
 				"     paginationRules: ['supportRFC5988' -> 'true'],",
-				"     responseFormat: ['type' -> 'json', 'documentForm' -> 'documentPerLine']) ~> Earthquakes"
+				"     responseFormat: ['type' -> 'json', 'documentForm' -> 'documentPerLine']) ~> Earthquakes",
+				"Earthquakes foldDown(unroll(),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flatten1"
 			]
 		}
 	}
