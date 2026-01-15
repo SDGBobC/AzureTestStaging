@@ -13,7 +13,16 @@
 					"description": "Earthquake data from USGS"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "EarthquakeDest",
+					"description": "Export data to earthquake table"
+				}
+			],
 			"transformations": [
 				{
 					"name": "ParseJSON"
@@ -63,7 +72,45 @@
 				"          title = body.features.properties.title",
 				"     ),",
 				"     skipDuplicateMapInputs: false,",
-				"     skipDuplicateMapOutputs: false) ~> ParseJSON"
+				"     skipDuplicateMapOutputs: false) ~> ParseJSON",
+				"ParseJSON sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          mag as double,",
+				"          place as string,",
+				"          time as long,",
+				"          updated as long,",
+				"          tz as string,",
+				"          url as string,",
+				"          detail as string,",
+				"          felt as integer,",
+				"          cdi as double,",
+				"          mmi as double,",
+				"          alert as string,",
+				"          status as string,",
+				"          tsunami as boolean,",
+				"          sig as integer,",
+				"          net as string,",
+				"          code as string,",
+				"          ids as string,",
+				"          sources as string,",
+				"          types as string,",
+				"          nst as integer,",
+				"          dmin as double,",
+				"          rms as double,",
+				"          gap as integer,",
+				"          magType as string,",
+				"          type as string,",
+				"          title as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> EarthquakeDest"
 			]
 		}
 	}
