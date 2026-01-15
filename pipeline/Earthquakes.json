@@ -17,7 +17,11 @@
 				"typeProperties": {
 					"dataflow": {
 						"referenceName": "EarthquakeData",
-						"type": "DataFlowReference"
+						"type": "DataFlowReference",
+						"parameters": {
+							"starttime": "\"2026-01-03\"",
+							"endtime": "\"2026-01-04\""
+						}
 					},
 					"compute": {
 						"coreCount": 8,
