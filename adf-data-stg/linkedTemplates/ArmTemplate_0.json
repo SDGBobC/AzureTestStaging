@@ -1,0 +1,423 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-data-stg"
+		},
+		"ls_dev_stg_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_dev_stg'"
+		},
+		"Earthquakes_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://earthquake.usgs.gov/fdsnws/event/1/query"
+		},
+		"ls_dev_stg_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "bc-sdg-reporting-dev.database.windows.net"
+		},
+		"ls_dev_stg_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "staging"
+		},
+		"ls_dev_stg_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "sa_bc_sdg"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Earthquakes')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "RestService",
+				"typeProperties": {
+					"url": "[parameters('Earthquakes_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_dev_stg')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "DEV staging database.",
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_dev_stg_properties_typeProperties_server')]",
+					"database": "[parameters('ls_dev_stg_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_dev_stg_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_dev_stg_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/earthquake')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dev_stg",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "mag",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "place",
+						"type": "nvarchar"
+					},
+					{
+						"name": "time",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "updated",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "tz",
+						"type": "nvarchar"
+					},
+					{
+						"name": "url",
+						"type": "nvarchar"
+					},
+					{
+						"name": "detail",
+						"type": "nvarchar"
+					},
+					{
+						"name": "felt",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "cdi",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "mmi",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "alert",
+						"type": "nvarchar"
+					},
+					{
+						"name": "status",
+						"type": "nvarchar"
+					},
+					{
+						"name": "tsunami",
+						"type": "bit"
+					},
+					{
+						"name": "sig",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "net",
+						"type": "nvarchar"
+					},
+					{
+						"name": "code",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ids",
+						"type": "nvarchar"
+					},
+					{
+						"name": "sources",
+						"type": "nvarchar"
+					},
+					{
+						"name": "types",
+						"type": "nvarchar"
+					},
+					{
+						"name": "nst",
+						"type": "tinyint",
+						"precision": 3
+					},
+					{
+						"name": "dmin",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "rms",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "gap",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "magType",
+						"type": "nvarchar"
+					},
+					{
+						"name": "type",
+						"type": "nvarchar"
+					},
+					{
+						"name": "title",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "earthquake"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dev_stg')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/EarthquakeData')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"linkedService": {
+								"referenceName": "Earthquakes",
+								"type": "LinkedServiceReference"
+							},
+							"name": "Earthquakes",
+							"description": "Earthquake data from USGS"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "earthquake",
+								"type": "DatasetReference"
+							},
+							"name": "EarthquakeDest",
+							"description": "Export data to earthquake table"
+						}
+					],
+					"transformations": [
+						{
+							"name": "ParseJSON"
+						}
+					],
+					"scriptLines": [
+						"parameters{",
+						"     starttime as string (\"2026-01-01\"),",
+						"     endtime as string (\"2026-01-02\")",
+						"}",
+						"source(output(",
+						"          body as (bbox as double[], features as (geometry as (coordinates as double[], type as string), id as string, properties as (alert as string, cdi as double, code as string, detail as string, dmin as double, felt as short, gap as short, ids as string, mag as double, magType as string, mmi as double, net as string, nst as short, place as string, rms as double, sig as short, sources as string, status as string, time as long, title as string, tsunami as boolean, type as string, types as string, tz as string, updated as long, url as string), type as string)[], metadata as (api as string, count as short, generated as long, status as short, title as string, url as string), type as string),",
+						"          headers as [string,string]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: true,",
+						"     format: 'rest',",
+						"     timeout: 30,",
+						"     requestInterval: 0,",
+						"     entity: 'https://earthquake.usgs.gov/fdsnws/event/1/query',",
+						"     queryParameters: ['format' -> 'geojson', 'starttime' -> ($starttime), 'endtime' -> ($endtime)],",
+						"     httpMethod: 'GET',",
+						"     paginationRules: ['supportRFC5988' -> 'true'],",
+						"     responseFormat: ['type' -> 'json', 'documentForm' -> 'arrayOfDocuments']) ~> Earthquakes",
+						"Earthquakes foldDown(unroll(body.features),",
+						"     mapColumn(",
+						"          mag = body.features.properties.mag,",
+						"          place = body.features.properties.place,",
+						"          time = body.features.properties.time,",
+						"          updated = body.features.properties.updated,",
+						"          tz = body.features.properties.tz,",
+						"          url = body.features.properties.url,",
+						"          detail = body.features.properties.detail,",
+						"          felt = body.features.properties.felt,",
+						"          cdi = body.features.properties.cdi,",
+						"          mmi = body.features.properties.mmi,",
+						"          alert = body.features.properties.alert,",
+						"          status = body.features.properties.status,",
+						"          tsunami = body.features.properties.tsunami,",
+						"          sig = body.features.properties.sig,",
+						"          net = body.features.properties.net,",
+						"          code = body.features.properties.code,",
+						"          ids = body.features.properties.ids,",
+						"          sources = body.features.properties.sources,",
+						"          types = body.features.properties.types,",
+						"          nst = body.features.properties.nst,",
+						"          dmin = body.features.properties.dmin,",
+						"          rms = body.features.properties.rms,",
+						"          gap = body.features.properties.gap,",
+						"          magType = body.features.properties.magType,",
+						"          type = body.features.geometry.type,",
+						"          title = body.features.properties.title",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> ParseJSON",
+						"ParseJSON sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          mag as double,",
+						"          place as string,",
+						"          time as long,",
+						"          updated as long,",
+						"          tz as string,",
+						"          url as string,",
+						"          detail as string,",
+						"          felt as integer,",
+						"          cdi as double,",
+						"          mmi as double,",
+						"          alert as string,",
+						"          status as string,",
+						"          tsunami as boolean,",
+						"          sig as integer,",
+						"          net as string,",
+						"          code as string,",
+						"          ids as string,",
+						"          sources as string,",
+						"          types as string,",
+						"          nst as integer,",
+						"          dmin as double,",
+						"          rms as double,",
+						"          gap as integer,",
+						"          magType as string,",
+						"          type as string,",
+						"          title as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     preSQLs:[(\"DELETE FROM dbo.earthquake WHERE dateadd(ms, time, '1970-01-01T00:00:00.000Z') BETWEEN '{$starttime}' AND '{$endtime}' \")],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          mag,",
+						"          place,",
+						"          time,",
+						"          updated,",
+						"          tz,",
+						"          url,",
+						"          detail,",
+						"          felt,",
+						"          cdi,",
+						"          mmi,",
+						"          alert,",
+						"          status,",
+						"          tsunami,",
+						"          sig,",
+						"          net,",
+						"          code,",
+						"          ids,",
+						"          sources,",
+						"          types,",
+						"          nst,",
+						"          dmin,",
+						"          rms,",
+						"          gap,",
+						"          magType,",
+						"          type,",
+						"          title",
+						"     )) ~> EarthquakeDest"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Earthquakes')]",
+				"[concat(variables('factoryId'), '/datasets/earthquake')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Earthquakes')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Earthquakes",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "EarthquakeData",
+								"type": "DataFlowReference",
+								"parameters": {
+									"starttime": {
+										"value": "'@{utcNow('d')}'",
+										"type": "Expression"
+									},
+									"endtime": {
+										"value": "'@{adddays(utcNow('d'), 1, 'd')}'",
+										"type": "Expression"
+									}
+								},
+								"datasetParameters": {
+									"Earthquakes": {},
+									"EarthquakeDest": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/EarthquakeData')]"
+			]
+		}
+	]
+}
