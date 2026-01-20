@@ -41,6 +41,7 @@
 				"     validateSchema: true,",
 				"     format: 'rest',",
 				"     timeout: 30,",
+				"     requestInterval: 0,",
 				"     entity: 'https://earthquake.usgs.gov/fdsnws/event/1/query',",
 				"     queryParameters: ['format' -> 'geojson', 'starttime' -> ($starttime), 'endtime' -> ($endtime)],",
 				"     httpMethod: 'GET',",
