@@ -388,11 +388,11 @@
 								"type": "DataFlowReference",
 								"parameters": {
 									"starttime": {
-										"value": "@adddays(utcNow('d'), -1, 'd')",
+										"value": "@string(adddays(utcNow('d'), -1, 'd'))",
 										"type": "Expression"
 									},
 									"endtime": {
-										"value": "@utcNow('d')",
+										"value": "@string(utcNow('d'))",
 										"type": "Expression"
 									}
 								},
