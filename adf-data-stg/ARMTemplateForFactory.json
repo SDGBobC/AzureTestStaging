@@ -54,16 +54,7 @@
 							"dataflow": {
 								"referenceName": "EarthquakeData",
 								"type": "DataFlowReference",
-								"parameters": {
-									"starttime": {
-										"value": "@string(adddays(utcNow('d'), -1, 'd'))",
-										"type": "Expression"
-									},
-									"endtime": {
-										"value": "@string(utcNow('d'))",
-										"type": "Expression"
-									}
-								},
+								"parameters": {},
 								"datasetParameters": {
 									"Earthquakes": {},
 									"EarthquakeDest": {}
@@ -297,8 +288,8 @@
 					],
 					"scriptLines": [
 						"parameters{",
-						"     starttime as string (\"2026-01-01\"),",
-						"     endtime as string (\"2026-01-02\")",
+						"     starttime as string (toString(addDays(currentUTC(), -1))),",
+						"     endtime as string (toString(currentUTC()))",
 						"}",
 						"source(output(",
 						"          body as (bbox as double[], features as (geometry as (coordinates as double[], type as string), id as string, properties as (alert as string, cdi as double, code as string, detail as string, dmin as double, felt as short, gap as short, ids as string, mag as double, magType as string, mmi as double, net as string, nst as short, place as string, rms as double, sig as short, sources as string, status as string, time as long, title as string, tsunami as boolean, type as string, types as string, tz as string, updated as long, url as string), type as string)[], metadata as (api as string, count as short, generated as long, status as short, title as string, url as string), type as string),",
