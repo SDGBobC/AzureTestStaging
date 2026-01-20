@@ -115,8 +115,8 @@
 					},
 					{
 						"name": "felt",
-						"type": "tinyint",
-						"precision": 3
+						"type": "smallint",
+						"precision": 5
 					},
 					{
 						"name": "cdi",
@@ -167,8 +167,8 @@
 					},
 					{
 						"name": "nst",
-						"type": "tinyint",
-						"precision": 3
+						"type": "smallint",
+						"precision": 5
 					},
 					{
 						"name": "dmin",
