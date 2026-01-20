@@ -27,6 +27,14 @@
 			"type": "string",
 			"defaultValue": "sa_bc_sdg"
 		},
+		"Daily Earthquakes_properties_Earthquakes_parameters_starttime": {
+			"type": "string",
+			"defaultValue": "@adddays(utcNow('d'), -1, 'd')"
+		},
+		"Daily Earthquakes_properties_Earthquakes_parameters_endtime": {
+			"type": "string",
+			"defaultValue": "@utcNow('d')"
+		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -68,6 +76,12 @@
 					},
 					"ls_dev_stg_properties_typeProperties_userName": {
 						"value": "[parameters('ls_dev_stg_properties_typeProperties_userName')]"
+					},
+					"Daily Earthquakes_properties_Earthquakes_parameters_starttime": {
+						"value": "[parameters('Daily Earthquakes_properties_Earthquakes_parameters_starttime')]"
+					},
+					"Daily Earthquakes_properties_Earthquakes_parameters_endtime": {
+						"value": "[parameters('Daily Earthquakes_properties_Earthquakes_parameters_endtime')]"
 					}
 				}
 			},
