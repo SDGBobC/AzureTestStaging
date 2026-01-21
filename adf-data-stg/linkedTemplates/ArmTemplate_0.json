@@ -241,7 +241,7 @@
 					],
 					"scriptLines": [
 						"parameters{",
-						"     starttime as string (toString(addDays(currentUTC(), -1))),",
+						"     starttime as string (toString(addDays(currentUTC(),-1))),",
 						"     endtime as string (toString(currentUTC()))",
 						"}",
 						"source(output(",
@@ -365,7 +365,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Earthquakes')]",
+			"name": "[concat(parameters('factoryName'), '/EarthquakesStaging')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -390,8 +390,7 @@
 								"datasetParameters": {
 									"Earthquakes": {},
 									"EarthquakeDest": {}
-								},
-								"linkedServiceParameters": {}
+								}
 							},
 							"staging": {},
 							"compute": {
@@ -421,7 +420,7 @@
 				"pipelines": [
 					{
 						"pipelineReference": {
-							"referenceName": "Earthquakes",
+							"referenceName": "EarthquakesStaging",
 							"type": "PipelineReference"
 						},
 						"parameters": {}
@@ -434,13 +433,12 @@
 						"interval": 1,
 						"startTime": "2026-01-20T09:00:00",
 						"endTime": "2026-01-24T10:00:00",
-						"timeZone": "Central Standard Time",
-						"schedule": {}
+						"timeZone": "Central Standard Time"
 					}
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/Earthquakes')]"
+				"[concat(variables('factoryId'), '/pipelines/EarthquakesStaging')]"
 			]
 		}
 	]

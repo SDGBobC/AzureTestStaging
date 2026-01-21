@@ -33,7 +33,7 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('factoryName'), '/Earthquakes')]",
+			"name": "[concat(parameters('factoryName'), '/EarthquakesStaging')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -58,8 +58,7 @@
 								"datasetParameters": {
 									"Earthquakes": {},
 									"EarthquakeDest": {}
-								},
-								"linkedServiceParameters": {}
+								}
 							},
 							"staging": {},
 							"compute": {
@@ -255,6 +254,37 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/Daily Earthquakes')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "EarthquakesStaging",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2026-01-20T09:00:00",
+						"endTime": "2026-01-24T10:00:00",
+						"timeZone": "Central Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/EarthquakesStaging')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/EarthquakeData')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -288,7 +318,7 @@
 					],
 					"scriptLines": [
 						"parameters{",
-						"     starttime as string (toString(addDays(currentUTC(), -1))),",
+						"     starttime as string (toString(addDays(currentUTC(),-1))),",
 						"     endtime as string (toString(currentUTC()))",
 						"}",
 						"source(output(",
@@ -409,38 +439,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/Earthquakes')]",
 				"[concat(variables('factoryId'), '/datasets/earthquake')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Daily Earthquakes')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "Earthquakes",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "ScheduleTrigger",
-				"typeProperties": {
-					"recurrence": {
-						"frequency": "Day",
-						"interval": 1,
-						"startTime": "2026-01-20T09:00:00",
-						"endTime": "2026-01-24T10:00:00",
-						"timeZone": "Central Standard Time",
-						"schedule": {}
-					}
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/Earthquakes')]"
 			]
 		}
 	]
