@@ -54,11 +54,16 @@
 							"dataflow": {
 								"referenceName": "EarthquakeData",
 								"type": "DataFlowReference",
-								"parameters": {},
+								"parameters": {
+									"starttime": "toString(addDays(currentUTC(),-1), 'yyyy-MM-dd')",
+									"endtime": "toString(currentUTC(), 'yyyy-MM-dd')"
+								},
 								"datasetParameters": {
 									"Earthquakes": {},
-									"EarthquakeDest": {}
-								}
+									"EarthquakeDest": {},
+									"Log": {}
+								},
+								"linkedServiceParameters": {}
 							},
 							"staging": {},
 							"compute": {
@@ -76,6 +81,47 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/EarthquakeData')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dev_stg",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "runDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "starttime",
+						"type": "varchar"
+					},
+					{
+						"name": "endtime",
+						"type": "varchar"
+					},
+					{
+						"name": "rows",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "earthquake_run_log"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dev_stg')]"
 			]
 		},
 		{
@@ -309,17 +355,30 @@
 							},
 							"name": "EarthquakeDest",
 							"description": "Export data to earthquake table"
+						},
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable1",
+								"type": "DatasetReference"
+							},
+							"name": "Log"
 						}
 					],
 					"transformations": [
 						{
 							"name": "ParseJSON"
+						},
+						{
+							"name": "CountRows"
+						},
+						{
+							"name": "AddParameterValues"
 						}
 					],
 					"scriptLines": [
 						"parameters{",
-						"     starttime as string (toString(addDays(currentUTC(),-1))),",
-						"     endtime as string (toString(currentUTC()))",
+						"     starttime as string (toString(addDays(currentUTC(),-1), 'yyyy-MM-dd')),",
+						"     endtime as string (toString(currentUTC(), 'yyyy-MM-dd'))",
 						"}",
 						"source(output(",
 						"          body as (bbox as double[], features as (geometry as (coordinates as double[], type as string), id as string, properties as (alert as string, cdi as double, code as string, detail as string, dmin as double, felt as short, gap as short, ids as string, mag as double, magType as string, mmi as double, net as string, nst as short, place as string, rms as double, sig as short, sources as string, status as string, time as long, title as string, tsunami as boolean, type as string, types as string, tz as string, updated as long, url as string), type as string)[], metadata as (api as string, count as short, generated as long, status as short, title as string, url as string), type as string),",
@@ -366,6 +425,9 @@
 						"     ),",
 						"     skipDuplicateMapInputs: false,",
 						"     skipDuplicateMapOutputs: false) ~> ParseJSON",
+						"ParseJSON aggregate(rowcount = count(time)) ~> CountRows",
+						"CountRows derive(starttime = $starttime,",
+						"          endtime = $endtime) ~> AddParameterValues",
 						"ParseJSON sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -432,13 +494,35 @@
 						"          magType,",
 						"          type,",
 						"          title",
-						"     )) ~> EarthquakeDest"
+						"     )) ~> EarthquakeDest",
+						"AddParameterValues sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          runDate as timestamp,",
+						"          starttime as string,",
+						"          endtime as string,",
+						"          rows as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          starttime,",
+						"          endtime,",
+						"          rows = rowcount",
+						"     )) ~> Log"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/Earthquakes')]",
-				"[concat(variables('factoryId'), '/datasets/earthquake')]"
+				"[concat(variables('factoryId'), '/datasets/earthquake')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]"
 			]
 		}
 	]
