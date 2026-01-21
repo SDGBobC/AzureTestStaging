@@ -1,0 +1,36 @@
+{
+	"name": "AzureSqlTable1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dev_stg",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "runDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "starttime",
+				"type": "varchar"
+			},
+			{
+				"name": "endtime",
+				"type": "varchar"
+			},
+			{
+				"name": "rows",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "earthquake_run_log"
+		}
+	}
+}

@@ -21,16 +21,29 @@
 					},
 					"name": "EarthquakeDest",
 					"description": "Export data to earthquake table"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "Log"
 				}
 			],
 			"transformations": [
 				{
 					"name": "ParseJSON"
+				},
+				{
+					"name": "CountRows"
+				},
+				{
+					"name": "AddParameterValues"
 				}
 			],
 			"scriptLines": [
 				"parameters{",
-				"     starttime as string (toString(addDays(currentUTC(), -1))),",
+				"     starttime as string (toString(addDays(currentUTC(),-1))),",
 				"     endtime as string (toString(currentUTC()))",
 				"}",
 				"source(output(",
@@ -78,6 +91,9 @@
 				"     ),",
 				"     skipDuplicateMapInputs: false,",
 				"     skipDuplicateMapOutputs: false) ~> ParseJSON",
+				"ParseJSON aggregate(rowcount = count(time)) ~> CountRows",
+				"CountRows derive(starttime = $starttime,",
+				"          endtime = $endtime) ~> AddParameterValues",
 				"ParseJSON sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -144,7 +160,28 @@
 				"          magType,",
 				"          type,",
 				"          title",
-				"     )) ~> EarthquakeDest"
+				"     )) ~> EarthquakeDest",
+				"AddParameterValues sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          runDate as timestamp,",
+				"          starttime as string,",
+				"          endtime as string,",
+				"          rows as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          starttime,",
+				"          endtime,",
+				"          rows = rowcount",
+				"     )) ~> Log"
 			]
 		}
 	}
