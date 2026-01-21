@@ -19,8 +19,8 @@
 						"referenceName": "EarthquakeData",
 						"type": "DataFlowReference",
 						"parameters": {
-							"starttime": "toString(addDays(currentUTC(),-1))",
-							"endtime": "toString(currentUTC())"
+							"starttime": "toString(addDays(currentUTC(),-1), 'yyyy-MM-dd')",
+							"endtime": "toString(currentUTC(), 'yyyy-MM-dd')"
 						}
 					},
 					"compute": {
