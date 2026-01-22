@@ -1,5 +1,5 @@
 {
-	"name": "AzureSqlTable1",
+	"name": "earthquake_run_log",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_dev_stg",
